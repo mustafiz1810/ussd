@@ -1,5 +1,6 @@
-
-import 'package:ussd/ussd_advanced.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:ussd/services/ussd_advanced.dart';
+import '../repositories/post_api_request.dart';
 
 class UssdService {
   static Future<void> sendMoneyPersonal({
@@ -12,10 +13,11 @@ class UssdService {
   }) async {
     try {
       String baseCode = getBaseCode(serviceName);
+      print(baseCode);
       await UssdAdvanced.multisessionUssd(
           code: baseCode, subscriptionId: -1);
 
-      await performSteps([
+      bool stepsCompleted = await performSteps([
         getSendMoneyOption(serviceName),
         personalNumber,
         amount,
@@ -23,9 +25,23 @@ class UssdService {
         pin,
       ], id);
 
+      if (stepsCompleted) {
+        await ApiHandler.sendUssdResponse(
+          status: 'success',
+          response: "Money sent successfully",
+          id: id,
+        );
+      } else {
+        throw Exception('Steps could not be completed.');
+      }
+
       await UssdAdvanced.cancelSession();
     } catch (e) {
-      print("failed");
+      await ApiHandler.sendUssdResponse(
+        status: 'failed',
+        response: "Session failed: $e",
+        id: id,
+      );
     }
   }
 
@@ -41,21 +57,34 @@ class UssdService {
       await UssdAdvanced.multisessionUssd(
           code: baseCode, subscriptionId: 1);
 
-      await performSteps([
+      bool stepsCompleted = await performSteps([
         getCashInOption(serviceName),
         personalNumber,
         amount,
         pin,
       ], id);
 
+      if (stepsCompleted) {
+        await ApiHandler.sendUssdResponse(
+          status: 'success',
+          response: "Cash-in successful",
+          id: id,
+        );
+      } else {
+        throw Exception('Steps could not be completed.');
+      }
+
       await UssdAdvanced.cancelSession();
     } catch (e) {
-      print("failed");
+      await ApiHandler.sendUssdResponse(
+        status: 'failed',
+        response: "Cash-in failed: $e",
+        id: id,
+      );
     }
   }
 
-  
-  static Future<void> performSteps(List<String> steps, String id) async {
+  static Future<bool> performSteps(List<String> steps, String id) async {
     for (String step in steps) {
       if (step.isNotEmpty) {
         try {
@@ -67,13 +96,18 @@ class UssdService {
           }
         } catch (e) {
           print('Error during USSD step "$step": $e');
-          break;
+          await ApiHandler.sendUssdResponse(
+            status: 'failed',
+            response: 'Error at step "$step": $e',
+            id: id,
+          );
+          return false;
         }
       }
     }
+    return true; // Return true if all steps succeed
   }
 
-  // Helper method to get the base code for each service
   static String getBaseCode(String serviceName) {
     switch (serviceName.toLowerCase()) {
       case 'bkash':
@@ -89,7 +123,6 @@ class UssdService {
     }
   }
 
-  // Helper method to get the send money option
   static String getSendMoneyOption(String serviceName) {
     switch (serviceName.toLowerCase()) {
       case 'bkash':
@@ -105,7 +138,6 @@ class UssdService {
     }
   }
 
-  // Helper method to get the cash-in option
   static String getCashInOption(String serviceName) {
     switch (serviceName.toLowerCase()) {
       case 'bkash':
@@ -121,7 +153,6 @@ class UssdService {
     }
   }
 
-  // Helper method to determine if reference is needed for a service
   static bool needsReference(String serviceName) {
     switch (serviceName.toLowerCase()) {
       case 'bkash':

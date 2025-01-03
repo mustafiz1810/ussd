@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
-        android:icon="@mipmap/launcher_icon"
-        android:label="ussd">
+        android:icon="@mipmap/ic_launcher"
+        android:label="Worker">
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
@@ -51,6 +51,7 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/ussd_service" />
         </service>
+
     </application>
 
     <queries>

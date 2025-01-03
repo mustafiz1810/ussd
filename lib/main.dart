@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ussd/ussd_ui.dart';
+import 'package:shared_value/shared_value.dart';
+import 'package:ussd/screens/home_page.dart';
 
 void main() {
-  runApp(const UssdApp());
+  runApp(
+    SharedValue.wrapApp(
+      const UssdApp(),
+    ),
+  );
 }
 
 class UssdApp extends StatelessWidget {
@@ -13,12 +18,13 @@ class UssdApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      title: 'Worker',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: UssdUi(),
+      home: HomePage(),
     );
   }
 }

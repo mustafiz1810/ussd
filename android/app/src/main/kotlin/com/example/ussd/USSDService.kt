@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import java.util.Locale
 
 /**
  * AccessibilityService object for USSD dialogs on Android mobile Telecoms.
@@ -98,12 +99,12 @@ class USSDService : AccessibilityService() {
         private fun clickOnButton(event: AccessibilityEvent, index: Int) {
             var count = -1
             for (leaf in getLeaves(event)) {
-                count++
-                if (count == index) {
-                    leaf.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                if (leaf.className.toString().lowercase(Locale.US).contains("button")) {
+                    count++
+                    if (count == index) {
+                        leaf.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                    }
                 }
-//                if (leaf.className.toString().lowercase(Locale.getDefault()).contains("button")) {
-//                }
             }
         }
 
