@@ -11,7 +11,7 @@ class AppConfig {
   //configure this
   static const bool HTTPS = true;
 
-  static const DOMAIN_PATH = "www.usdxpress.net"; //localhost
+  static const DOMAIN_PATH = "dollarclassic.net"; //localhost
 
   //do not configure these below
   static const String API_ENDPATH = "api";
